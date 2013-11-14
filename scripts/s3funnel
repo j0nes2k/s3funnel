@@ -123,7 +123,7 @@ def main():
         for header in options.headers:
             if ':' not in header:
                 parser.error("Header must be use ':' separator")
-            key, value = header.split(':', 2)
+            key, value = header.split(':', 1)
             headers[key.strip()] = value.strip()
 
     # Arguments
