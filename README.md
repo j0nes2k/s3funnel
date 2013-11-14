@@ -26,10 +26,6 @@ This project is a clone of <https://github.com/shazow>'s s3funnel from google co
 
     Options:
       -h, --help        show this help message and exit
-      -a AWS_KEY, --aws_key=AWS_KEY
-                Overrides AWS_ACCESS_KEY_ID environment variable
-      -s AWS_SECRET_KEY, --aws_secret_key=AWS_SECRET_KEY
-                Overrides AWS_SECRET_ACCESS_KEY environment variable
       -t N, --threads=N     Number of threads to use [default: 1]
       -T SECONDS, --timeout=SECONDS
                 Socket timeout time, 0 is never [default: 0]
