@@ -167,6 +167,7 @@ def main():
        'get':    funnel.get,
        'put':    funnel.put,
        'delete': funnel.delete,
+       'multidelete': funnel.multidelete,
        'copy':   funnel.copy,
     }
 

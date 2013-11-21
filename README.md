@@ -17,6 +17,7 @@ This project is a clone of <https://github.com/shazow>'s s3funnel from google co
         DELETE Delete key from the bucket
         GET    Get key from the bucket
         PUT    Put file into the bucket (key is the basename of the path)
+        MULTIDELETE    Deletes multiple keys in one call
 
     Bucket Operations:
         CREATE Create a new bucket

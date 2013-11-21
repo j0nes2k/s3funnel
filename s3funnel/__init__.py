@@ -10,7 +10,7 @@ from socket import error as SocketError
 from Queue import Queue, Empty
 from exceptions import FunnelError
 
-from jobs import GetJob, PutJob, DeleteJob, CopyJob
+from jobs import GetJob, PutJob, DeleteJob, CopyJob, MultiDeleteJob
 
 __all__ = ['GetJob','PutJob','DeleteJob','S3ToolBox','BucketFunnel']
 
@@ -186,6 +186,36 @@ class S3Funnel(object):
         pool.join()
 
         return collapse_queue(failed)
+
+    def multidelete(self, bucket, ikeys, retry=5, num_files=999, **config):
+        """
+        Given an iterator of key names, delete these keys from the current bucket in
+        a S3 multidelete operation in batches.
+        Return a list of failed keys (if any).
+        """
+        # Setup local config for this request
+        c = {}
+        c.update(config)
+        c['retry'] = retry
+
+        failed = Queue()
+        pool = self._get_pool()
+        num = 0
+        l = []
+        for k in ikeys:
+            if num < num_files:
+                l.append(k)
+            else:
+                j = MultiDeleteJob(bucket, l, failed, c)
+                pool.put(j)
+                num = 0
+                l = []
+        j = MultiDeleteJob(bucket, l, failed, c)
+        pool.put(j)
+
+        pool.join()
+
+        return collapse_queue(failed)        
 
     def get(self, bucket, ikeys, retry=5, **config):
         """

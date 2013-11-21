@@ -197,6 +197,39 @@ class DeleteJob(Job):
             self.failed.put(self.key)
         except Exception, e:
             self.failed.put(e)
+
+class MultiDeleteJob(Job):
+    "Delete the given keys from S3."
+    def __init__(self, bucket, keys, failed, config={}):
+        self.bucket = bucket
+        self.keys = keys
+        self.failed = failed
+        self.retries = config.get('retry', 5)
+
+    def _do(self, toolbox):
+        for i in xrange(self.retries):
+            try:
+                k = toolbox.get_bucket(self.bucket).delete_keys(self.keys)
+                log.info("Deleted: %s" % self.keys)
+                return
+            except S3ResponseError, e:
+                log.warning("Connection lost, reconnecting and retrying...")
+                toolbox.reset()
+            except BotoServerError, e:
+                break
+            except (IncompleteRead, SocketError, BotoClientError), e:
+                log.warning("Caught exception: %r.\nRetrying..." % e)
+                time.sleep((2 ** i) / 4.0) # Exponential backoff
+
+        log.error("Failed to delete: %s" % self.keys)
+
+    def run(self, toolbox):
+        try:
+            self._do(toolbox)
+        except JobError, e:
+            self.failed.put(self.key)
+        except Exception, e:
+            self.failed.put(e)            
             
 class CopyJob(Job):
     "Copy the given key from another bucket."
